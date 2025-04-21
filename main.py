@@ -1,15 +1,11 @@
-from XRPLib.lineFollow import lineFollow
-from XRPLib.differential_drive import DifferentialDrive
-from XRPLib.board import Board
+from xbox_controlled_XRP import TeamWDreamBot
 
+wifi = {'ssid':"Tufts_Robot",'pass':''}
+#wifi = Fairmount_Wireless = {'ssid':'Verizon_SLD76X','pass':'dice7-gee-prate'}
+#wifi = {'ssid':'Natalie07','pass':'Blue126Kitchen'}
+IP_add = '10.243.115.106'
 
-line = lineFollow()
-board = Board.get_default_board()
-diffDrive = DifferentialDrive.get_default_differential_drive()
-
-while not board.is_button_pressed():
-    if line.lineDetect():
-        line.PIDLineFollow()
-
-
-
+bot = TeamWDreamBot(wifi, IP_add)
+bot.start()
+bot.loop() #loops until USER botton pressed
+bot.stop()
