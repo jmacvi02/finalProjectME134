@@ -9,8 +9,11 @@ mosquitto -c mosquitto.conf -v
 
 
 Use mac’s current IP address to reference: ex. 
+
 192.168.1.235 for 10 Fairmount
+
 mosquitto_sub -t 'test' -h 192.168.86.29 -p 1883
+
 mosquitto_pub -t "test" -h 192.168.1.235 -p 1883 -m "hi there”
 
 
