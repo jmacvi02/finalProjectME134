@@ -5,7 +5,7 @@ from machine import Timer
 from XRPLib import mqtt
 import network, ubinascii
 from XRPLib.imu import IMU
-from huskylensPythonLibrary import HuskyLensLibrary
+from Husky.huskylensPythonLibrary import HuskyLensLibrary
 
 class TeamWDreamBot:
     def __init__(self, wifi, ip):
@@ -18,10 +18,10 @@ class TeamWDreamBot:
         self.R_motor = EncodedMotor.get_default_encoded_motor(index=2)
         self.drive = DifferentialDrive(self.L_motor,self.R_motor) # type: ignore
         self.latest_message = "0,0"
-        self.send_interval = 10
+        self.send_interval = 100 #.1 seconds
         self.Eli = None
         self.output_data = "empty"
-        self.start_time = time.time_ns()/1000000
+        self.start_time = time.ticks_ms()
 
         # # Initialize HuskyLens on I2C and differential drive system
         # self.husky = HuskyLensLibrary("I2C")
@@ -113,7 +113,11 @@ class TeamWDreamBot:
         return self.xrp_imu.get_acc_gyro_rates()
 
     def send_data(self, data):
-        self.Eli.publish("data", data) #type:ignore
+        try:
+            self.Eli.publish("data", data) #type: ignore
+            print("sent: " + str(data))
+        except Exception as e:
+            print("[MQTT Publish Error]", e)
     
     def start(self):
         board.led_on()
@@ -147,10 +151,10 @@ class TeamWDreamBot:
                 #     sx1 = "NA"
                 #     sx2 = "NA"
 
-                t = (time.time_ns()/1000000) - self.start_time
-                self.output_data = str(t)+","+str(eff_l)+","+str(eff_r)#+","+str(imu_data[0][0])+","+str(imu_data[0][1])+","+str(imu_data[1][2])#+","+str(sx1)+","+str(sx2)
+                elapsed = time.ticks_diff(time.ticks_ms(), self.start_time)
+                self.output_data = str(elapsed)+","+str(eff_l)+","+str(eff_r)+","+str(imu_data[0][0])+","+str(imu_data[0][1])+","+str(imu_data[1][2])#+","+str(sx1)+","+str(sx2)
                 time.sleep(.01)
-                print(self.output_data)
+                
         except Exception as e:
             print("Main Loop not excecuted")
             print(e)
