@@ -23,11 +23,11 @@ class TeamWDreamBot:
         self.output_data = "empty"
         self.start_time = time.ticks_ms()
 
-        # # Initialize HuskyLens on I2C and differential drive system
-        # self.husky = HuskyLensLibrary("I2C")
-        # # Ensure HuskyLens is in line tracking mode
-        # while not self.husky.line_tracking_mode():
-        #     self.husky.line_tracking_mode()
+        # Initialize HuskyLens on I2C and differential drive system
+        self.husky = HuskyLensLibrary("I2C")
+        # Ensure HuskyLens is in line tracking mode
+        while not self.husky.line_tracking_mode():
+            self.husky.line_tracking_mode()
 
     def connect_wifi(self, wifi):
         station = network.WLAN(network.STA_IF)
@@ -139,21 +139,21 @@ class TeamWDreamBot:
                 eff_l, eff_r = self.mapToEffort(mag, angle)
                 self.drive.set_effort(eff_l , eff_r)
                 imu_data = self.print_Imu()
-                # state = self.husky.command_request_arrows()
-                # print("state: "+str(state)) # type: ignore
-                # if len(state) > 0: # type: ignore
-                #     state_vector = state[0]
-                #     # x1 and x2 are the left and right points of the arrow
-                #     sx1 = state_vector[0]  # x1
-                #     sx2 = state_vector[2]  # x2
-                # else:
-                #     print("Camera Not detecting line")
-                #     sx1 = "NA"
-                #     sx2 = "NA"
+                state = self.husky.command_request_arrows()
+                print("state: "+str(state)) # type: ignore
+                if len(state) > 0: # type: ignore
+                    state_vector = state[0]
+                    # x1 and x2 are the left and right points of the arrow
+                    sx1 = state_vector[1]  # x1
+                    sx2 = state_vector[3]  # x2
+                else:
+                    print("Camera Not detecting line")
+                    sx1 = "NA"
+                    sx2 = "NA"
 
                 elapsed = time.ticks_diff(time.ticks_ms(), self.start_time)
-                self.output_data = str(elapsed)+","+str(eff_l)+","+str(eff_r)+","+str(imu_data[0][0])+","+str(imu_data[0][1])+","+str(imu_data[1][2])#+","+str(sx1)+","+str(sx2)
-                time.sleep(.01)
+                self.output_data = str(elapsed)+","+str(eff_l)+","+str(eff_r)+","+str(imu_data[0][0])+","+str(imu_data[0][1])+","+str(imu_data[1][2])+","+str(sx1)+","+str(sx2)
+                time.sleep(.02)
                 
         except Exception as e:
             print("Main Loop not excecuted")

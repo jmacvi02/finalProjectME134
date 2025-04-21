@@ -14,7 +14,7 @@ filename = f"/Users/elihoulton/Desktop/5Spring/RoboticsME134/finalProjectME134/r
 csv_file = open(filename, mode='w', newline='')
 csv_writer = csv.writer(csv_file)
 
-csv_writer.writerow(["time", "left effort","right effort","x accel","y accel","z gyro"])#,"left line", "right line"])
+csv_writer.writerow(["time", "left effort","right effort","x accel","y accel","z gyro","y head","y tail"])#,"left line", "right line"])
 print(f"[INFO] Writing to {filename}")
 # MQTT Callback: when message is received
 def on_message(client, userdata, msg):
