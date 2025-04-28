@@ -1,6 +1,15 @@
 import pygame
 import time
 
+import paho.mqtt.client as mqtt 
+import time
+
+broker_address='10.247.137.123'
+
+Joel = mqtt.Client(client_id="team_w_dream", protocol=mqtt.MQTTv311)
+
+Joel.connect(broker_address, 1883) 
+
 # Initialize Pygame and Joystick
 pygame.init()
 pygame.joystick.init()
@@ -24,7 +33,8 @@ while running:
     axis_1 = -1*joystick.get_axis(1)  # Right joystick Y-axis
     
     print(f"left/right: {axis_0:.2f}, down/up: {axis_1:.2f}")  # Print values rounded to 2 decimal places
-    
-    time.sleep(1)  # Wait for 1 second before updating again
+    Joel.publish("topic",str(round(axis_0,2))+","+str(round(axis_1,2))) #LR, UD
+    time.sleep(.01)  # Wait for 1 second before updating again
 
 pygame.quit()
+Joel.disconnect()

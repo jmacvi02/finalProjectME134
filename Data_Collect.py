@@ -4,7 +4,7 @@ from datetime import datetime
 import paho.mqtt.client as mqtt
 
 # MQTT Config
-BROKER_IP = "10.243.115.106"
+BROKER_IP = "10.247.137.123"
 TOPIC = "data"
 PORT = 1883
 

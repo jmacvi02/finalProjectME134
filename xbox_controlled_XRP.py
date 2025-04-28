@@ -6,9 +6,12 @@ from XRPLib import mqtt
 import network, ubinascii
 from XRPLib.imu import IMU
 from Husky.huskylensPythonLibrary import HuskyLensLibrary
+from pestolink import PestoLinkAgent
 
 class TeamWDreamBot:
     def __init__(self, wifi, ip):
+        ble_name = "XRP"
+        self.pestolink = PestoLinkAgent(ble_name)
         self.xrp_imu = IMU.get_default_imu()
         self.wifi = wifi
         self.client = None
@@ -18,16 +21,18 @@ class TeamWDreamBot:
         self.R_motor = EncodedMotor.get_default_encoded_motor(index=2)
         self.drive = DifferentialDrive(self.L_motor,self.R_motor) # type: ignore
         self.latest_message = "0,0"
-        self.send_interval = 100 #.1 seconds
+        self.send_interval = 250 #every .25 seconds
         self.Eli = None
         self.output_data = "empty"
         self.start_time = time.ticks_ms()
+        self.send_data_flag = False
 
-        # Initialize HuskyLens on I2C and differential drive system
-        self.husky = HuskyLensLibrary("I2C")
-        # Ensure HuskyLens is in line tracking mode
-        while not self.husky.line_tracking_mode():
-            self.husky.line_tracking_mode()
+        #--->
+        # # Initialize HuskyLens on I2C and differential drive system
+        # self.husky = HuskyLensLibrary("I2C")
+        # # Ensure HuskyLens is in line tracking mode
+        # while not self.husky.line_tracking_mode():
+        #     self.husky.line_tracking_mode()
 
     def connect_wifi(self, wifi):
         station = network.WLAN(network.STA_IF)
@@ -43,6 +48,8 @@ class TeamWDreamBot:
 
     def whenCalled(self, topic, msg):
             self.latest_message = msg.decode()
+            print(msg.decode())
+            #print(time.ticks_diff(time.ticks_ms(), self.start_time))
 
     def connect_mqtt(self):
         try:
@@ -112,12 +119,9 @@ class TeamWDreamBot:
     def print_Imu(self):
         return self.xrp_imu.get_acc_gyro_rates()
 
-    def send_data(self, data):
-        try:
-            self.Eli.publish("data", data) #type: ignore
-            print("sent: " + str(data))
-        except Exception as e:
-            print("[MQTT Publish Error]", e)
+    def send_data(self):
+        self.send_data_flag = True
+        print("triggered")
     
     def start(self):
         board.led_on()
@@ -125,22 +129,38 @@ class TeamWDreamBot:
         board.led_off()
         self.connect_wifi(self.wifi)
         self.connect_mqtt()
-
-        self.timer.init(period=self.send_interval, mode=Timer.PERIODIC,callback=lambda t: self.send_data(self.output_data))
+        board.led.on()
+        print("waiting for BLE connect - run xrp_ble_connect.exe")
+        while not self.pestolink.is_connected():  # Check if a BLE connection is established
+            board.led.off()
+            time.sleep(.25)
+            board.led.on()
+            time.sleep(.25)
+        print("BLE connected")
+        #self.timer.init(period=self.send_interval, mode=Timer.PERIODIC, callback=lambda t: self.send_data())
         print("[System] Timer started")
         board.led.on()
 
     def loop(self):
         try:
+            t=0
             while not board.is_button_pressed():
-                self.Eli.check_msg() #type:ignore
-                absX, absY = map(float, self.latest_message.split(","))
-                mag, angle = self.joyToMagAng(absX, absY)
-                eff_l, eff_r = self.mapToEffort(mag, angle)
-                self.drive.set_effort(eff_l , eff_r)
+                eff_l = eff_r = "NA"
+                if self.pestolink.is_connected():  # Check if a BLE connection is established
+                    absX = self.pestolink.get_axis(0)
+                    absY = -1 * self.pestolink.get_axis(1)
+                    mag, angle = self.joyToMagAng(absX, absY)
+                    eff_l, eff_r = self.mapToEffort(mag, angle)
+                    self.drive.set_effort(eff_l , eff_r)
+                    
+                else: #default behavior when no BLE connection is open
+                    print("BLE not connected")
+                    drivetrain.arcade(0, 0)
+
                 imu_data = self.print_Imu()
-                state = self.husky.command_request_arrows()
-                print("state: "+str(state)) # type: ignore
+                #--->#state = self.husky.command_request_arrows()
+                state = []
+                # print("state: "+str(state)) # type: ignore
                 if len(state) > 0: # type: ignore
                     state_vector = state[0]
                     # x1 and x2 are the left and right points of the arrow
@@ -152,8 +172,16 @@ class TeamWDreamBot:
                     sx2 = "NA"
 
                 elapsed = time.ticks_diff(time.ticks_ms(), self.start_time)
-                self.output_data = str(elapsed)+","+str(eff_l)+","+str(eff_r)+","+str(imu_data[0][0])+","+str(imu_data[0][1])+","+str(imu_data[1][2])+","+str(sx1)+","+str(sx2)
-                time.sleep(.02)
+                t_string = elapsed/1000
+                self.output_data = str(t_string)+","+str(eff_l)+","+str(eff_r)+","+str(imu_data[0][0])+","+str(imu_data[0][1])+","+str(imu_data[1][2])+","+str(sx1)+","+str(sx2)
+                if time.ticks_diff(time.ticks_ms(), t) > self.send_interval:
+                    try:
+                        self.Eli.publish("data", self.output_data) #type: ignore
+                    #print("sent: " + str(data))
+                    except Exception as e:
+                        print("[MQTT Publish Error]", e)
+                    t = time.ticks_ms()
+                time.sleep(0.05)
                 
         except Exception as e:
             print("Main Loop not excecuted")
