@@ -17,9 +17,11 @@ mosquitto_sub -t 'test' -h 192.168.86.29 -p 1883
 mosquitto_pub -t "test" -h 192.168.1.235 -p 1883 -m "hi there”
 
 
-Run script connecting controller to mqtt
-Run program on XRP
-then run Data collect
+-Run main.py on XRP
+
+-Run .exe made from xrp_ble_connect.py. Reference comments at top of this code to get it set up
+
+-Run Data_Collect to use mqtt server to collect data from XRP to be used in ML pipeline
 
 
-ENSURE ALL HAVE CORRECT MQTT IP ADDRESS
+ENSURE ALL HAVE CORRECT MQTT IP ADDRESS and FILEPATHS
