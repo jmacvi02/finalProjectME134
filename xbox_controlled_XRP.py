@@ -1,11 +1,10 @@
 import math
-from XRPLib.defaults import *
+from XRPLibMotor3Opt.defaults import *
 import time
 from machine import Timer
 from XRPLib import mqtt
 import network, ubinascii
 from XRPLib.imu import IMU
-from Husky.huskylensPythonLibrary import HuskyLensLibrary
 from pestolink import PestoLinkAgent
 
 class TeamWDreamBot:
@@ -21,18 +20,12 @@ class TeamWDreamBot:
         self.R_motor = EncodedMotor.get_default_encoded_motor(index=2)
         self.drive = DifferentialDrive(self.L_motor,self.R_motor) # type: ignore
         self.latest_message = "0,0"
+        self.encoder_L = self.encoder_R = 0
         self.send_interval = 250 #every .25 seconds
         self.Eli = None
         self.output_data = "empty"
         self.start_time = time.ticks_ms()
-        self.send_data_flag = False
-
-        #--->
-        # # Initialize HuskyLens on I2C and differential drive system
-        # self.husky = HuskyLensLibrary("I2C")
-        # # Ensure HuskyLens is in line tracking mode
-        # while not self.husky.line_tracking_mode():
-        #     self.husky.line_tracking_mode()
+        self.dist_sensor = Rangefinder(20, 21)
 
     def connect_wifi(self, wifi):
         station = network.WLAN(network.STA_IF)
@@ -116,6 +109,24 @@ class TeamWDreamBot:
 
         return effortL, effortR
     
+    def get_wall_sensor_input(self):
+        ranges = []
+        for i in range(7):
+            ranges.append(self.dist_sensor.distance())
+        return self.get_median(ranges)
+
+    def get_median(self, arr):
+        # Function created with help from chatgpt
+        if not arr:
+            raise ValueError("Array cannot be empty")
+        arr.sort()  # Sort the array
+        n = len(arr)
+        mid = n // 2  # Find the middle index
+        if n % 2 == 0:
+            return (arr[mid - 1] + arr[mid]) / 2  # Average of two middle values for even length
+        else:
+            return arr[mid]  # Middle value for odd length
+        
     def print_Imu(self):
         return self.xrp_imu.get_acc_gyro_rates()
 
@@ -144,6 +155,8 @@ class TeamWDreamBot:
     def loop(self):
         try:
             t=0
+            vel_L = vel_R = 0
+            encoder_L_prev = encoder_R_prev = 0
             while not board.is_button_pressed():
                 eff_l = eff_r = "NA"
                 if self.pestolink.is_connected():  # Check if a BLE connection is established
@@ -158,22 +171,17 @@ class TeamWDreamBot:
                     drivetrain.arcade(0, 0)
 
                 imu_data = self.print_Imu()
-                #--->#state = self.husky.command_request_arrows()
-                state = []
-                # print("state: "+str(state)) # type: ignore
-                if len(state) > 0: # type: ignore
-                    state_vector = state[0]
-                    # x1 and x2 are the left and right points of the arrow
-                    sx1 = state_vector[1]  # x1
-                    sx2 = state_vector[3]  # x2
-                else:
-                    print("Camera Not detecting line")
-                    sx1 = "NA"
-                    sx2 = "NA"
+                range_f = self.get_wall_sensor_input()
+                self.encoder_L = self.L_motor.get_position_counts()
+                self.encoder_R = self.R_motor.get_position_counts()
+
 
                 elapsed = time.ticks_diff(time.ticks_ms(), self.start_time)
                 t_string = elapsed/1000
-                self.output_data = str(t_string)+","+str(eff_l)+","+str(eff_r)+","+str(imu_data[0][0])+","+str(imu_data[0][1])+","+str(imu_data[1][2])+","+str(sx1)+","+str(sx2)
+                vel_L = (self.encoder_L - encoder_L_prev)/t_string
+                vel_R = (self.encoder_R - encoder_R_prev)/t_string
+                self.output_data = str(t_string)+","+str(eff_l)+","+str(eff_r)+","+str(imu_data[0][0])+","+str(imu_data[0][1])\
+                +","+str(imu_data[1][2])+","+str(range_f)+","+str()
                 if time.ticks_diff(time.ticks_ms(), t) > self.send_interval:
                     try:
                         self.Eli.publish("data", self.output_data) #type: ignore
