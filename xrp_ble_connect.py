@@ -1,5 +1,5 @@
 # MUST RUN THIS AS AN EXE TO ACCESS BLE- INSTALL PYINSTALLER AND RUN
-# pyinstaller --onefile xrp_ble_connect.
+# pyinstaller --onefile xrp_ble_connect.py
 
 import asyncio
 import pygame
@@ -68,6 +68,7 @@ async def main():
     devices = await BleakScanner.discover()
     robot_device = None
     for d in devices:
+        print(d)
         if d.name and d.name.startswith(ROBOT_NAME):
             robot_device = d
             break
