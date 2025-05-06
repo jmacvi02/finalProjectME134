@@ -9,6 +9,7 @@ from pestolink import PestoLinkAgent
 
 class TeamWDreamBot:
     def __init__(self, wifi, ip):
+        #Initialize necessary variables
         ble_name = "XRP"
         self.pestolink = PestoLinkAgent(ble_name)
         self.xrp_imu = IMU.get_default_imu()
@@ -17,7 +18,6 @@ class TeamWDreamBot:
         self.timer = Timer()
         self.ip = ip
         self.drive = DifferentialDrive.get_default_differential_drive()
-
         self.latest_message = "0,0"
         self.encoder_L = self.encoder_R = 0
         self.send_interval = 250 #every .25 seconds
@@ -27,6 +27,8 @@ class TeamWDreamBot:
         self.dist_sensor = Rangefinder(20, 21)
 
     def connect_wifi(self, wifi):
+        # Takes wifi username and password as dictionary and connects pico to that wifi network.
+        # Requires network and ubinascii libraries
         station = network.WLAN(network.STA_IF)
         station.active(True)
         mac = ubinascii.hexlify(network.WLAN().config('mac'),':').decode()
@@ -39,9 +41,9 @@ class TeamWDreamBot:
         print(station.ifconfig())
 
     def whenCalled(self, topic, msg):
+            #listens to mqtt channel topic
             self.latest_message = msg.decode()
             print(msg.decode())
-            #print(time.ticks_diff(time.ticks_ms(), self.start_time))
 
     def connect_mqtt(self):
         try:
@@ -54,6 +56,8 @@ class TeamWDreamBot:
             print('MQTT connect Failed'+str(e))
 
     def joyToMagAng(self, absX, absY):
+        #Used to convert xbox input into efforts to send the motors
+
         centX = 0 #offset val ELI PUT THE X VALUE AT CENTER HERE
         centY = 0 #offset val ELI PUT THE Y VALUE AT  CENTER HERE
 
@@ -84,6 +88,8 @@ class TeamWDreamBot:
         return mag, angle
 
     def mapToEffort(self, mag, angle):
+        #Used to convert xbox input into efforts to send the motors
+
         maxMAG = 1 #ELI PUT WHATEVER THE MAGNITUDE IS WHEN JOY STICK IS ALL THE WAY EXTENDED HERE
 
         magFactor = 1 / maxMAG
@@ -128,10 +134,6 @@ class TeamWDreamBot:
         
     def print_Imu(self):
         return self.xrp_imu.get_acc_gyro_rates()
-
-    def send_data(self):
-        self.send_data_flag = True
-        print("triggered")
     
     def start(self):
         board.led_on()
@@ -147,11 +149,11 @@ class TeamWDreamBot:
             board.led.on()
             time.sleep(.25)
         print("BLE connected")
-        #self.timer.init(period=self.send_interval, mode=Timer.PERIODIC, callback=lambda t: self.send_data())
         print("[System] Timer started")
         board.led.on()
 
     def loop(self):
+        # loops until user button is pressed, converts xbox controller input to commands, and sends data over mqtt
         try:
             t=0
             vel_L = vel_R = 0
@@ -200,9 +202,9 @@ class TeamWDreamBot:
             print(e)
 
     def stop(self):
-        self.timer.deinit()
+        # What to do on disconnect
         if self.Eli:
             self.Eli.disconnect()
-        print("[System] Timer and MQTT disconnected")
+        print("MQTT disconnected")
         board.led_off()
         self.drive.set_effort(0,0)

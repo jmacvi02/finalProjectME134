@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 
 # Load data
-df = pd.read_csv("3-mqtt_data_0506_14_49.csv")
+df = pd.read_csv("run_data/4-mqtt_data_0506_16_46.csv")
 
 # Select inputs and targets
 input_cols = [
@@ -90,3 +90,12 @@ plt.title("Training vs Validation Loss")
 plt.legend()
 plt.grid(True)
 plt.show()
+
+# Save model
+torch.save(model.state_dict(), "motor_effort_model.pth")
+import os
+print("Saving model to:", os.getcwd())
+
+print("Model saved successfully.")
+
+

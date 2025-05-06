@@ -1,4 +1,4 @@
-time,left effort,right effort,x accel,y accel,z gyro,range,encoder left,encoder right,vel left,vel right
+time,left effort,right effort,x accel,y accel,z gyro,rangefinder,encoder left,encoder right,vel left,vel right
 182.242,0.413172,0.3652372,17.39851,-12.32565,-9123.893,15.13746,-93.41003,92.12116,-0.0033593,0.002475256
 182.509,0.3529773,0.5088403,-4.561487,15.00235,-15283.89,17.13058,-96.79328,94.79555,-0.005296462,0.004060602
 182.769,0.4288219,0.7123479,37.89451,106.2584,3056.108,17.14777,-100.7565,98.88768,-0.005465126,0.005994098
