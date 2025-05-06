@@ -10,7 +10,7 @@ PORT = 1883
 
 # Output CSV setup
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-filename = f"/Users/elihoulton/Desktop/5Spring/RoboticsME134/finalProjectME134/run_data/mqtt_data_{timestamp}.csv"
+filename = f"/Users/elihoulton/Desktop/5Spring/RoboticsME134/finalProjectME134/xbox_controlled/run_data/mqtt_data_{timestamp}.csv"
 csv_file = open(filename, mode='w', newline='')
 csv_writer = csv.writer(csv_file)
 
