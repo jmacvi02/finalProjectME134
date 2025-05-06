@@ -14,11 +14,12 @@ class lineFollow:
 
         self.state = "idle"
 
-        self.center = 120 #pick center in horizontal middle?
-        self.kp = 0.001 #PID values for line following
+        self.center = 70 #pick center in horizontal middle?
+        self.kp = 0.1 #PID values for line following
         self.ki = 0.000
-        self.kd = 0.000
-        self.effort = 0.4
+        self.kd = 0.05
+        self.baseVelL = 35 #higher base vel to account for the extra weight of the camera mount
+        self.baseVelR = 30
 
         self.prevError = 0
         self.derError = 0
@@ -43,10 +44,11 @@ class lineFollow:
         
     def transition(self):
         if self.lineDetect():
-            if self.state_vector[2] == self.state_vector[4]:
+            print(f"{self.state_vector[0]}, {self.state_vector[1]}, {self.state_vector[2]}, {self.state_vector[3]}")
+            if self.state_vector[2] == self.state_vector[0]:
                 slope = 100
             else:
-                slope = (self.state_vector[3] - self.state_vector[1]) / (self.state_vector[2] - self.state_vector[4])
+                slope = (self.state_vector[3] - self.state_vector[1]) / (self.state_vector[2] - self.state_vector[0])
 
             print(f"slope: {slope}")
             if (abs(slope) < 1): 
@@ -59,17 +61,15 @@ class lineFollow:
     def execute(self):
         if self.state == "idle":
             print(f"idle")
-            self.diffDrive.stop()#accounting for weight of new mount
+            self.diffDrive.stop()
         elif self.state == "straightAway":
-            newEffort = self.straightAway()
+            newVel = self.straightAway()
             print("straight")
-            self.diffDrive.set_effort(self.effort - newEffort, self.effort + newEffort)
+            self.diffDrive.set_speed(self.baseVelL - newVel, self.baseVelR + newVel)
         elif self.state == "turn":
-            newEffort = self.turn()
+            newVel= self.turn()
             print("turn")
-            self.diffDrive.set_effort(self.effort - newEffort, self.effort + newEffort)
-
-
+            self.diffDrive.set_speed(self.baseVelL - newVel, self.baseVelR + newVel)
 
     def straightAway(self):
         #accounting for arrow pointing right 
@@ -91,7 +91,7 @@ class lineFollow:
         
     def turn(self):
         
-        return 0.15
+        return 12
 
 
 
