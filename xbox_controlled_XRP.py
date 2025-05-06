@@ -175,20 +175,20 @@ class TeamWDreamBot:
                     drivetrain.arcade(0, 0)
 
                 imu_data = self.print_Imu()
-<<<<<<< Updated upstream
                 range_f = self.get_wall_sensor_input()
                 self.encoder_L = self.L_motor.get_position_counts()
                 self.encoder_R = self.R_motor.get_position_counts()
-
-=======
->>>>>>> Stashed changes
 
                 elapsed = time.ticks_diff(time.ticks_ms(), self.start_time)
                 t_string = elapsed/1000
                 vel_L = (self.encoder_L - encoder_L_prev)/t_string
                 vel_R = (self.encoder_R - encoder_R_prev)/t_string
-                self.output_data = str(t_string)+","+str(eff_l)+","+str(eff_r)+","+str(imu_data[0][0])+","+str(imu_data[0][1])\
-                +","+str(imu_data[1][2])+","+str(range_f)+","+str()
+
+                self.output_data = str(t_string)+","+str(eff_l)+","+str(eff_r)+","\
+                    +str(imu_data[0][0])+","+str(imu_data[0][1])+","+str(imu_data[1][2])\
+                        +","+str(range_f)+","+str(self.encoder_L)+","+str(self.encoder_R)\
+                        +","+str(vel_L)+","+str(vel_R)
+
                 if time.ticks_diff(time.ticks_ms(), t) > self.send_interval:
                     try:
                         self.Eli.publish("data", self.output_data) #type: ignore
@@ -196,6 +196,8 @@ class TeamWDreamBot:
                     except Exception as e:
                         print("[MQTT Publish Error]", e)
                     t = time.ticks_ms()
+                encoder_L_prev = self.encoder_L
+                encoder_R_prev = self.encoder_R
                 time.sleep(0.05)
                 
         except Exception as e:
