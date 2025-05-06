@@ -4,6 +4,7 @@ from XRPLib.differential_drive import DifferentialDrive
 from XRPLib.board import Board
 import time
 
+<<<<<<< Updated upstream
 # #wifi = {'ssid':"Tufts_Robot",'pass':''}
 # wifi = Fairmount_Wireless = {'ssid':'Verizon_SLD76X','pass':'dice7-gee-prate'}
 # #wifi = {'ssid':'Natalie07','pass':'Blue126Kitchen'}
@@ -29,4 +30,12 @@ while not board.is_button_pressed():
     # print("in loop")
 
 diffDrive.stop()
+=======
+wifi = {'ssid':"Tufts_Robot",'pass':''}
+#wifi = Fairmount_Wireless = {'ssid':'Verizon_SLD76X','pass':'dice7-gee-prate'}
+#wifi = {'ssid':'Natalie07','pass':'Blue126Kitchen'}
+#IP_add = '10.243.115.106' #Tufts_Secure
+IP_add = '10.247.137.61' #Tufts Robot
+#IP_add = "192.168.1.235" #home
+>>>>>>> Stashed changes
 

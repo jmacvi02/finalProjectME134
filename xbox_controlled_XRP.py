@@ -25,7 +25,11 @@ class TeamWDreamBot:
         self.Eli = None
         self.output_data = "empty"
         self.start_time = time.ticks_ms()
+<<<<<<< Updated upstream
         self.dist_sensor = Rangefinder(20, 21)
+=======
+        self.send_data_flag = False
+>>>>>>> Stashed changes
 
     def connect_wifi(self, wifi):
         station = network.WLAN(network.STA_IF)
@@ -171,10 +175,13 @@ class TeamWDreamBot:
                     drivetrain.arcade(0, 0)
 
                 imu_data = self.print_Imu()
+<<<<<<< Updated upstream
                 range_f = self.get_wall_sensor_input()
                 self.encoder_L = self.L_motor.get_position_counts()
                 self.encoder_R = self.R_motor.get_position_counts()
 
+=======
+>>>>>>> Stashed changes
 
                 elapsed = time.ticks_diff(time.ticks_ms(), self.start_time)
                 t_string = elapsed/1000
