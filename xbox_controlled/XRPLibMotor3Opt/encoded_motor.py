@@ -37,7 +37,7 @@ class EncodedMotor:
         elif index == 3:
             if cls._DEFAULT_MOTOR_THREE_INSTANCE is None:
                 cls._DEFAULT_MOTOR_THREE_INSTANCE = cls(
-                    Motor(2, 3),
+                    Motor(2, 3, flip_dir=False),
                     Encoder(2, 0, 1)
                 )
             motor = cls._DEFAULT_MOTOR_THREE_INSTANCE
