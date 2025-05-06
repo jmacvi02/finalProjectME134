@@ -14,12 +14,12 @@ class lineFollow:
 
         self.state = "idle"
 
-        self.center = 70 #pick center in horizontal middle?
+        self.center = 30 #pick center in horizontal middle?
         self.kp = 0.1 #PID values for line following
         self.ki = 0.000
         self.kd = 0.05
-        self.baseVelL = 35 #higher base vel to account for the extra weight of the camera mount
-        self.baseVelR = 30
+        self.baseVelL = 35*1.5 #higher base vel to account for the extra weight of the camera mount
+        self.baseVelR = 30*1.5
 
         self.prevError = 0
         self.derError = 0
@@ -46,14 +46,14 @@ class lineFollow:
         if self.lineDetect():
             print(f"{self.state_vector[0]}, {self.state_vector[1]}, {self.state_vector[2]}, {self.state_vector[3]}")
             if self.state_vector[2] == self.state_vector[0]:
-                slope = 100
+                slope = 10
             else:
                 slope = (self.state_vector[3] - self.state_vector[1]) / (self.state_vector[2] - self.state_vector[0])
 
             print(f"slope: {slope}")
-            if (abs(slope) < 1): 
+            if (abs(slope) < 2): 
                 self.state = "straightAway"
-            elif (abs(slope) >= 1):  
+            elif (abs(slope) >= 2):  
                 self.state = "turn"
         else:
             self.state = "idle"
@@ -91,7 +91,7 @@ class lineFollow:
         
     def turn(self):
         
-        return 12
+        return 20
 
 
 
