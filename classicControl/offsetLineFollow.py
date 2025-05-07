@@ -1,7 +1,15 @@
+# Author:       Joel MacVicar
+# Date Updated: 5/7/2025
+# Name :        offsetLineFollow.py
+# Purpose:      A offset line following class to control the XRP around a rectangular track.
+#               This control class uses the Husky lens to detect a line along the top of the 
+#               inner wall of the the track. It uses a PD controller to follow both a target
+#               slope and position of the line. 
+
 from XRPLib.differential_drive import DifferentialDrive
 from Husky.huskylensPythonLibrary import HuskyLensLibrary
-
 import time
+
 
 class lineFollow:
     def __init__(self, ):
@@ -11,19 +19,18 @@ class lineFollow:
             self.husky.line_tracking_mode()  
         self.diffDrive = DifferentialDrive.get_default_differential_drive()
         self.state_vector = [] #[bottomX, bottomY, topX, topY] when populated
+        self.state = "searching"
 
-        self.state = "idle"
-
-        self.center = 30 #pick center in horizontal middle?
-        self.kp = 0.1 #PID values for line following
-        self.ki = 0.000
-        self.kd = 0.05
-        self.baseVelL = 35*1.5 #higher base vel to account for the extra weight of the camera mount
-        self.baseVelR = 30*1.5
-
-        self.prevError = 0
-        self.derError = 0
-        self.intError = 0
+        self.slope = 0 #initial
+        self.center = 80 #the target y position of the line
+        self.baseVelL = 35 #higher base vel to account for the extra weight of the camera mount
+        self.baseVelR = 30
+        self.kSP = 10
+        self.kPP = 0.1
+        self.kSD = 0  #   5
+        self.kPD = 0  #  0.07
+        self.slopeErrorPrev = 0
+        self.posErrorPrev = 0
 
     def lineDetect(self):
         """
@@ -43,55 +50,57 @@ class lineFollow:
             return False
         
     def transition(self):
-        if self.lineDetect():
-            print(f"{self.state_vector[0]}, {self.state_vector[1]}, {self.state_vector[2]}, {self.state_vector[3]}")
-            if self.state_vector[2] == self.state_vector[0]:
-                slope = 10
-            else:
-                slope = (self.state_vector[3] - self.state_vector[1]) / (self.state_vector[2] - self.state_vector[0])
-
-            print(f"slope: {slope}")
-            if (abs(slope) < 2): 
-                self.state = "straightAway"
-            elif (abs(slope) >= 2):  
-                self.state = "turn"
-        else:
-            self.state = "idle"
+        """
+        Determines if the robot needs to transition states.
+        """
+        if self.state == "lineFollowing":
+            if not self.lineDetect():
+                self.state = "searching"
+        elif self.state == "searching":
+            if self.lineDetect():
+                self.state = "lineFollowing"
 
     def execute(self):
-        if self.state == "idle":
-            print(f"idle")
-            self.diffDrive.stop()
-        elif self.state == "straightAway":
-            newVel = self.straightAway()
-            print("straight")
+        """
+        Executes control based on the current state
+        """
+        if self.state == "lineFollowing":
+            newVel = self.lineFollow()
+            #print("following")
             self.diffDrive.set_speed(self.baseVelL - newVel, self.baseVelR + newVel)
-        elif self.state == "turn":
-            newVel= self.turn()
-            print("turn")
-            self.diffDrive.set_speed(self.baseVelL - newVel, self.baseVelR + newVel)
+        elif self.state == "searching":
+            #print("searching")
+            self.diffDrive.set_speed(10, 30)
 
-    def straightAway(self):
-        #accounting for arrow pointing right 
-        if self.state_vector[0] < self.state_vector[2]:
-            error = self.center-self.state_vector[3]
-            self.intError += error
-            self.derError = error - self.prevError
-            newEffort = error*self.kp + self.derError*self.kd + self.intError*self.ki
-    
-            return newEffort
-        #accounting for arrow pointing left 
+        #small sleep to allow for change to occur before calling state transition
+        time.sleep(0.05)
+
+    def lineFollow(self):
+        """
+        PD line following control using the Husky Lens. Cannot be run on its own since state_vector is updated by lineDetect function.
+
+        :return: the calculated velocity to be added/subtracted from the base velocity
+        :rtype: float
+        """        
+        #accounting for a completely vertical line (which has infinite slope)
+        if self.state_vector[2] == self.state_vector[0]:
+            self.slope = 10
         else:
-            error = self.center-self.state_vector[1]
-            self.intError += error
-            self.derError = error - self.prevError
-            newEffort = error*self.kp + self.derError*self.kd + self.intError*self.ki
+            self.slope = (self.state_vector[3] - self.state_vector[1]) / (self.state_vector[2] - self.state_vector[0])
+
+        #error and derivative error calculations
+        slopeError = -self.slope
+        posError = self.center - (self.state_vector[3] + self.state_vector[1])/2
+        derSlopeError = slopeError - self.slopeErrorPrev
+        derPosError = posError - self.posErrorPrev
+        #updates prev errors to current error
+        self.slopeErrorPrev = slopeError
+        self.posErrorPrev = posError
+        #new velocity calculation
+        newVel = (self.kSP*slopeError + self.kSD*derSlopeError) + (self.kPP * posError + self.kPD*derPosError)
     
-            return newEffort
-        
-    def turn(self):
-        
-        return 20
+        return newVel
+
 
 
 
