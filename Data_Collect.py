@@ -4,12 +4,14 @@ from datetime import datetime
 import paho.mqtt.client as mqtt
 
 # MQTT Config
+#UPDATE WITH YOUR MAC IP ADDRESS
 BROKER_IP = "10.247.137.157"
 TOPIC = "data"
 PORT = 1883
 
 # Output CSV setup
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+#UPDATE WITH YOUR FILE DESTINATION
 filename = f"/Users/elihoulton/Desktop/5Spring/RoboticsME134/finalProjectME134/xbox_controlled/run_data/mqtt_data_{timestamp}.csv"
 csv_file = open(filename, mode='w', newline='')
 csv_writer = csv.writer(csv_file)

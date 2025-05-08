@@ -1,3 +1,8 @@
+# Author:       Eli Houlton
+# Date Updated: 5/7/2025
+# Name :        xbox_controlled_XRP.py
+# Purpose:      Implementation of a class to control an XRP via an xbox controller using bluetooth.
+
 import math
 from XRPLibMotor3Opt.defaults import *
 import time

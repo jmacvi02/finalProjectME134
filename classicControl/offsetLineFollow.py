@@ -139,7 +139,6 @@ class lineFollow:
         newVel = (self.kSP*slopeError + self.kSD*derSlopeError) + (self.kPP * posError + self.kPD*derPosError)
     
         return newVel
-    
 
     def filter_single(self, new_val, hist):
         """
