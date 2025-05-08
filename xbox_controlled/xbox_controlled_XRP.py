@@ -11,39 +11,29 @@ from XRPLib import mqtt
 import network, ubinascii
 from XRPLib.imu import IMU
 from pestolink import PestoLinkAgent
+from MQTT_class import Mqtt_Client
 
 class TeamWDreamBot:
     def __init__(self, wifi, ip):
         #Initialize necessary variables
+        # blink led to let user know main is running:
+        board.led_on()
+        time.sleep(.2)
+        board.led_off()
         ble_name = "XRP"
         self.pestolink = PestoLinkAgent(ble_name)
         self.xrp_imu = IMU.get_default_imu()
-        self.wifi = wifi
-        self.client = None
-        self.timer = Timer()
-        self.ip = ip
         self.drive = DifferentialDrive.get_default_differential_drive()
         self.latest_message = "0,0"
         self.encoder_L = self.encoder_R = 0
         self.send_interval = 250 #every .25 seconds
-        self.Eli = None
         self.output_data = "empty"
         self.start_time = time.ticks_ms()
         self.dist_sensor = Rangefinder(20, 21)
 
-    def connect_wifi(self, wifi):
-        # Takes wifi username and password as dictionary and connects pico to that wifi network.
-        # Requires network and ubinascii libraries
-        station = network.WLAN(network.STA_IF)
-        station.active(True)
-        mac = ubinascii.hexlify(network.WLAN().config('mac'),':').decode()
-        print("MAC " + mac)
-        
-        station.connect(wifi['ssid'],wifi['pass'])
-        while not station.isconnected():
-            time.sleep(1)
-        print('Connection successful')
-        print(station.ifconfig())
+        self.mqtt_client = Mqtt_Client(wifi, ip)
+        self.start()
+
 
     def whenCalled(self, topic, msg):
             #listens to mqtt channel topic
@@ -141,11 +131,6 @@ class TeamWDreamBot:
         return self.xrp_imu.get_acc_gyro_rates()
     
     def start(self):
-        board.led_on()
-        time.sleep(.25)
-        board.led_off()
-        self.connect_wifi(self.wifi)
-        self.connect_mqtt()
         board.led.on()
         print("waiting for BLE connect - run xrp_ble_connect.exe")
         while not self.pestolink.is_connected():  # Check if a BLE connection is established
@@ -193,8 +178,7 @@ class TeamWDreamBot:
 
                 if time.ticks_diff(time.ticks_ms(), t) > self.send_interval:
                     try:
-                        self.Eli.publish("data", self.output_data) #type: ignore
-                    #print("sent: " + str(data))
+                        self.mqtt_client.send_message(self.output_data)
                     except Exception as e:
                         print("[MQTT Publish Error]", e)
                     t = time.ticks_ms()
@@ -207,9 +191,5 @@ class TeamWDreamBot:
             print(e)
 
     def stop(self):
-        # What to do on disconnect
-        if self.Eli:
-            self.Eli.disconnect()
-        print("MQTT disconnected")
         board.led_off()
         self.drive.set_effort(0,0)
