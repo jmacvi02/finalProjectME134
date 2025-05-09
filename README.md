@@ -8,8 +8,11 @@ to summarize above
 -on mac, can run $brew install mosquitto
 
 - then edit config file to include
- listener 1883
- allow_anonymous true
+
+listener 1883
+
+allow_anonymous true
+ 
 At the bottom.
 
 In terminal go to folder with config file and run:
