@@ -4,10 +4,15 @@
 # Purpose:      A driver file to enact one of 4 different control methods developed in this project. 
 #               To enact a section, uncomment the corresponding code chunk below
 
+#for xbox control
 #from xbox_controlled.xbox_controlled_XRP import TeamWDreamBot
+#for classic control
 from classicControl.offsetLineFollow import lineFollow
 from XRPLib.differential_drive import DifferentialDrive
 from XRPLib.board import Board
+from MQTT_class import Mqtt_Client
+from XRPLib.imu import IMU
+from XRPLib.rangefinder import Rangefinder
 
 ##########################
 ##### Remote Control #####
@@ -35,14 +40,24 @@ from XRPLib.board import Board
 ###########################
 ##### Classic Control #####
 ###########################
+# initializing line following behavior
 lF = lineFollow()
 diffDrive = DifferentialDrive.get_default_differential_drive()
 board = Board.get_default_board()
+# for data collection via mqtt
+wifi = {'ssid':"Tufts_Robot",'pass':''}
+IP_add = '10.243.114.200' #Tufts_Secure
+pipeLine = Mqtt_Client(wifi, IP_add)
 
+
+#while not in the halt state
 while not board.is_button_pressed():
     lF.transition()
     lF.execute()
+    pipeLine.pipeLine()
 
+#halt state
+pipeLine.stop()
 diffDrive.stop()
 
 #####################################
