@@ -1,4 +1,4 @@
-# Author:       Eli Houlton
+# Author:       Eli Houlton and Joel MacVicar
 # Date Updated: 5/7/2025
 # Name :        MQTT_Client.py
 # Purpose:      Connects to wifi then mqtt server 

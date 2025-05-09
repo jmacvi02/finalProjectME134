@@ -1,7 +1,7 @@
-# Authors:      Eli Houlton and Joel MacVicar 
+# Authors:      Darrien, Eli Houlton, Joel MacVicar 
 # Date Updated: 5/7/2025
 # Name :        main.py
-# Purpose:      A driver file to enact one of 4 different control methods developed in this project. 
+# Purpose:      A driver file to enact one of 3 different control methods developed in this project. 
 #               To enact a section, uncomment the corresponding code chunk below
 
 #for xbox control
@@ -56,7 +56,6 @@ import gc
 # while not board.is_button_pressed():
 #     lF.transition()
 #     lF.execute()
-#     pipeLine.pipeLine()
 
 # #halt state
 # pipeLine.stop()

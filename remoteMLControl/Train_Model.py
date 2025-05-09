@@ -1,3 +1,8 @@
+# Authors:      Darrien
+# Date Updated: 4/22/2025
+# Name :        Train_model.py
+# Purpose:      Train the ML model based on date colleted while doing laps via remote control.
+
 import pandas as pd
 import torch
 import torch.nn as nn

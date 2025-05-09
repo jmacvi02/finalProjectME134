@@ -1,3 +1,7 @@
+# Authors:      Joel MacVicar 
+# Date Updated: 5/9/2025
+# Name :        remoteMLControl.py
+# Purpose:      A controller class to implement the weights and bias from our ML Model.
 import gc
 class remoteMLControl:
     def __init__(self):
