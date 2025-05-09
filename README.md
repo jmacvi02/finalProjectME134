@@ -39,6 +39,7 @@ ML CONTROL
 - KNOWN BUG: the XRP does not stop after the user button is pressed
 
 PIPELINE
+-Ensure the range sensor it mounted on the back left of the XRP and connectd to the range port. Sensor should be angled as is typical for wall following applications
 -Run Data_Collect to use mqtt server to collect data from XRP to be used in ML pipeline
 
 
