@@ -1,3 +1,5 @@
+Link to Demo https://youtu.be/5EHPGYR8pms
+
 **1. Problem**
 There are numerous considerations when choosing a control method for a robot. Time for implementation, behavior and design specifications, and personal preference/knowledge all play a part in this process. Balancing all of these factors can be difficult and is a problem that roboticists regularly face. 
 
