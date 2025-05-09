@@ -151,17 +151,28 @@ class Mqtt_Client:
 
         elapsed = time.ticks_diff(time.ticks_ms(), self.start_time)
         t_string = elapsed / 1000
-        vel_L = 0.16 * (self.encoder_L - self.encoder_L_prev) / (2 * t_string)
-        vel_R = 0.16 * (self.encoder_R - self.encoder_R_prev) / (2 * t_string)
+        vel_L = (self.encoder_L - self.encoder_L_prev) / (t_string)
+        vel_R = (self.encoder_R - self.encoder_R_prev) / (t_string)
+        linvel_L = 0.06 * (self.encoder_L - self.encoder_L_prev) / (2 * t_string)
+        linvel_R = 0.06 * (self.encoder_R - self.encoder_R_prev) / (2 * t_string)
 
         self.output_data = f"{t_string},{imu_data[0][0]},{imu_data[0][1]},{imu_data[1][2]}," \
                         f"{range_f},{self.encoder_L},{self.encoder_R},{vel_L},{vel_R}"
 
-        if time.ticks_diff(time.ticks_ms(), self.last_send_time) > self.send_interval:
-            try:
-                self.send_message(self.output_data)
-            except Exception as e:
-                print("[MQTT Publish Error]", e)
-            self.last_send_time = time.ticks_ms()
-            self.encoder_L_prev = self.encoder_L
-            self.encoder_R_prev = self.encoder_R
+        # if time.ticks_diff(time.ticks_ms(), self.t) > self.send_interval:
+        #     try:
+        #         self.send_message(self.output_data)
+        #     except Exception as e:
+        #         print("[MQTT Publish Error]", e)
+        #     self.last_send_time = time.ticks_ms()
+        #     self.encoder_L_prev = self.encoder_L
+        #     self.encoder_R_prev = self.encoder_R
+
+        return [range_f, 
+                imu_data[0][0], 
+                imu_data[0][1], 
+                imu_data[1][2], 
+                self.encoder_L, 
+                self.encoder_R,
+                vel_L,
+                vel_R]
