@@ -16,6 +16,7 @@ from XRPLib.rangefinder import Rangefinder
 from remoteMLControl.remoteMLControl import remoteMLControl
 import os
 import gc
+
 ##########################
 ##### Remote Control #####
 ##########################
@@ -42,21 +43,21 @@ import gc
 ###########################
 ##### Classic Control #####
 ###########################
-#initializing line following behavior
-lF = lineFollow()
-diffDrive = DifferentialDrive.get_default_differential_drive()
-board = Board.get_default_board()
-# for data collection via mqtt
-wifi = {'ssid':"Tufts_Robot",'pass':''}
-IP_add = '10.243.114.200' #Tufts_Secure
+# #initializing line following behavior
+# lF = lineFollow()
+# diffDrive = DifferentialDrive.get_default_differential_drive()
+# board = Board.get_default_board()
+# # for data collection via mqtt
+# wifi = {'ssid':"Tufts_Robot",'pass':''}
+# IP_add = '10.243.114.200' #Tufts_Secure
 
-#while not in the halt state
-while not board.is_button_pressed():
-    lF.transition()
-    lF.execute()
+# #while not in the halt state
+# while not board.is_button_pressed():
+#     lF.transition()
+#     lF.execute()
 
-#halt state
-diffDrive.stop()
+# #halt state
+# diffDrive.stop()
 
 #####################################
 ##### Remote Trained ML Control #####
