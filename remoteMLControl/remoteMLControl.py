@@ -1,3 +1,4 @@
+import gc
 class remoteMLControl:
     def __init__(self):
         self.b0, self.w0 = [], []
@@ -29,7 +30,7 @@ class remoteMLControl:
             ('mean.txt', self.mean, False),
             ('std.txt', self.std, False)
         ]
-
+        gc.collect() #help with loading in the large weight files
         for fname, target_list, is_matrix in files_to_load:
             file_path = f'{folder}/{fname}'
             try:

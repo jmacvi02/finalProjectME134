@@ -7,7 +7,7 @@
 #               slope and position of the line. 
 
 from XRPLib.differential_drive import DifferentialDrive
-from Husky.huskylensPythonLibrary import HuskyLensLibrary
+from classicControl.Husky.huskylensPythonLibrary import HuskyLensLibrary
 import time
 
 

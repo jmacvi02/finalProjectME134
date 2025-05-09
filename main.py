@@ -15,6 +15,7 @@ from XRPLib.imu import IMU
 from XRPLib.rangefinder import Rangefinder
 from remoteMLControl.remoteMLControl import remoteMLControl
 import os
+import gc
 ##########################
 ##### Remote Control #####
 ##########################
@@ -74,7 +75,9 @@ import os
 # encoder right,12423.754541786382,6831.271638513124
 # vel left,-0.0047664675376889445,0.001610161778140553
 # vel right,0.006169564386008744,0.0017634578991420654
+gc.collect()
 diffDrive = DifferentialDrive.get_default_differential_drive()
+diffDrive.stop()
 board = Board.get_default_board()
 # for data collection via mqtt
 wifi = {'ssid':"Tufts_Robot",'pass':''}
